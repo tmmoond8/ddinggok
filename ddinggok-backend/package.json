@@ -1,0 +1,18 @@
+{
+  "name": "ddinggok-backend",
+  "version": "1.0.0",
+  "description": "guess the song title only listening 1s",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --watch src/ src/index.js"
+  },
+  "dependencies": {
+    "koa": "^2.5.0",
+    "koa-router": "^7.4.0"
+  },
+  "devDependencies": {
+    "dotenv": "^5.0.1"
+  }
+}
