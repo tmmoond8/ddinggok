@@ -6,14 +6,16 @@ const Singer = new Schema({
   name: String,
   // name: { type: String, unique: true},
   displayName: String,
-  images: []
+  images: [],
+  musics: []
 });
 
 Singer.statics.createSinger = function({name, displayName}) {
   const singer = new this({
     name,
     displayName,
-    images: []
+    images: [],
+    musics: []
   });
   return singer.save();
 }

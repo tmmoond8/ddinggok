@@ -2,9 +2,14 @@ const Router = require('koa-router');
 const multer = require('koa-multer');
 const admin = new Router();
 const cmd = require('node-cmd');
-const Singer = require('db/models/Singer');
 const queryString = require('query-string');
+const NodeID3 = require('node-id3');
+const fs = require('fs');
+
+const Singer = require('db/models/Singer');
 const { makeRandomString } = require('lib/util');
+
+const PUBLIC_TMP = 'public/tmp/';
 
 const uploadSong = multer({
   storage: multer.diskStorage({
@@ -12,15 +17,39 @@ const uploadSong = multer({
       cb(null, 'public/tmp/');
     },
     filename: async function(req, file, cb) {
-      console.log('filename',req.url);
-      await cb(null, file.originalname);
+      const params = queryString.parse(req._parsedUrl.query);
+      const tmpFIleName = makeRandomString();
+      const srcFilePath = `${PUBLIC_TMP}"${tmpFIleName}"`;
+      const singer = await Singer.findByName(params.singerName);
+      // console.log(singer);
+      let music;
+      await cb(null, tmpFIleName);
+      await fs.readFile(`public/tmp/${tmpFIleName}`, (err, data) => {
+        if(err) throw err;
+        let tags = NodeID3.read(data);
+        const {title, artist, year, genre} = tags;
+        const imageBuffer = Buffer(tags.image.imageBuffer, 'ascii');
+        const base64Encoded = imageBuffer.toString('base64');
+        music = {
+          title,
+          artist,
+          year,
+          genre,
+          conver: base64Encoded,
+          filename: file.originalname
+        }
+        singer.musics = singer.musics.concat(music);
+        singer.save();
+      });
       try {
-        cmd.run(
+        await cmd.run(
           `
-            ffmpeg -t 5 -i public/tmp/"${file.originalname}" -acodec copy public/music/"${file.originalname}"
-            rm public/tmp/"${file.originalname}"
+            rm public/music/"${file.originalname}"
+            ffmpeg -t 5 -i ${srcFilePath} -acodec copy public/music/"${file.originalname}"
+            rm ${srcFilePath}
           `
         );
+        // music.filename = file.originalname;
       } catch(error) {
         console.error(err);
       }
@@ -56,8 +85,10 @@ const uploadSinger = multer({
   })
 })
 
-admin.post('/add/song', uploadSong.single('music'), (req, res, next) => {
-  console.log(req.query);
+admin.post('/add/song', async (req, res, next) => {
+  const {name} = req.query;
+  let singer = await Singer.findByName(name);
+  uploadSong.single('music')(req, res, function(err) {});
 });
 
 admin.post('/add/singer', async (req, res, next) => {
