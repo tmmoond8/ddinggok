@@ -1,6 +1,7 @@
 require('dotenv').config();
 const Koa = require('koa');
 const app = new Koa();
+const static = require('koa-static');
 const Router = require('koa-router');
 const api = require('./api');
 const db = require('./db');
@@ -10,6 +11,10 @@ const {
   PORT: port
 } = process.env;
 
+// set public static directory 
+app.use(static(__dirname.replace('src', 'public')));
+
+// set router
 const router = new Router();
 router.use('/api', api.routes());
 app.use(router.routes());

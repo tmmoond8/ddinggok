@@ -21,7 +21,6 @@ const uploadSong = multer({
       const tmpFIleName = makeRandomString();
       const srcFilePath = `${PUBLIC_TMP}"${tmpFIleName}"`;
       const singer = await Singer.findByName(params.singerName);
-      // console.log(singer);
       let music;
       await cb(null, tmpFIleName);
       await fs.readFile(`public/tmp/${tmpFIleName}`, (err, data) => {
@@ -49,7 +48,6 @@ const uploadSong = multer({
             rm ${srcFilePath}
           `
         );
-        // music.filename = file.originalname;
       } catch(error) {
         console.error(err);
       }
