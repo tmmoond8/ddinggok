@@ -33,8 +33,7 @@ module.exports = {
   // This means they will be the "root" imports that are included in JS bundle.
   // The first two entry points enable "hot" CSS and auto-refreshes for JS.
   entry: [
-    // We ship a few polyfills by default:
-    require.resolve('./polyfills'),
+    // require.resolve('react-hot-loader/patch'),
     // Include an alternative client for WebpackDevServer. A client's job is to
     // connect to WebpackDevServer by a socket and get notified about changes.
     // When you save a file, the client will either apply hot updates (in case
@@ -46,13 +45,20 @@ module.exports = {
     // require.resolve('webpack-dev-server/client') + '?/',
     // require.resolve('webpack/hot/dev-server'),
     require.resolve('react-dev-utils/webpackHotDevClient'),
+    // We ship a few polyfills by default:
+    require.resolve('./polyfills'),
     // Finally, this is your app's code:
+
+    require.resolve('react-error-overlay'),
+
     paths.appIndexJs,
     // We include the app code last so that if there is a runtime error during
     // initialization, it doesn't blow up the WebpackDevServer client, and
     // changing JS code would still trigger a refresh.
   ],
   output: {
+    // Next line is not used in dev but WebpackDevServer crashes without it:
+    path: paths.appBuild,
     // Add /* filename */ comments to generated require()s in the output.
     pathinfo: true,
     // This does not produce a real file. It's just the virtual path that is
@@ -95,7 +101,7 @@ module.exports = {
       // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
       // please link the files into your node_modules/ and let module-resolution kick in.
       // Make sure your source files are compiled, as they will not be processed in any way.
-      new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
+      new ModuleScopePlugin(paths.appSrc),
     ],
   },
   module: {
@@ -114,7 +120,6 @@ module.exports = {
           {
             options: {
               formatter: eslintFormatter,
-              eslintPath: require.resolve('eslint'),
               
             },
             loader: require.resolve('eslint-loader'),
@@ -148,6 +153,9 @@ module.exports = {
               // This is a feature of `babel-loader` for webpack (not Babel itself).
               // It enables caching results in ./node_modules/.cache/babel-loader/
               // directory for faster rebuilds.
+              // plugins: [
+              //   'react-hot-loader/babel'
+              // ],
               cacheDirectory: true,
             },
           },
@@ -228,6 +236,15 @@ module.exports = {
               }
             ],
           },
+          {
+            test: /\.ejs$/, 
+            loader: 'ejs-loader', 
+            query: { 
+                variable: 'data', 
+                interpolate : '\\{\\{(.+?)\\}\\}', 
+                evaluate : '\\[\\[(.+?)\\]\\]' 
+            }
+          },
           // "file" loader makes sure those assets get served by WebpackDevServer.
           // When you `import` an asset, you get its (virtual) filename.
           // In production, they would get copied to the `build` folder.
@@ -242,7 +259,8 @@ module.exports = {
               /\.(js|jsx|mjs)$/, 
               /\.html$/, 
               /\.json$/,
-              /\.scss$/
+              /\.scss$/,
+              /\.ejs$/,
             ],
             loader: require.resolve('file-loader'),
             options: {

@@ -1,12 +1,15 @@
 import React from 'react';
-import Button from 'components/Buttons/Button'
+import Button from 'components/Button'
+import SeaBackground from 'components/SeaBackground';
 
-const Home = () => {
+const HomePage = () => {
   return (
     <div>
-      <Button/>
+      <SeaBackground>
+        <Button/>
+      </SeaBackground>
     </div>
   )
 }
 
-export default Home;
+export default HomePage;

@@ -1,0 +1,28 @@
+@import 'utils';
+
+header {
+  height: 6rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  div {
+    font-size: 2.25rem;
+    font-family: 'Gaegu', monospace;
+    font-weight: 700;
+    color: material-color('grey', '50');
+  }
+  nav {
+    margin-left: 3rem;
+     a {
+       font-size: 1.25rem;
+       color: material-color('grey', '50');
+       &.active {
+         color: material-color('teal', '600');
+         font-weight: 500;
+       }
+       & + a  {
+         margin-left: 1.5rem;
+       }
+     }
+  }
+}
